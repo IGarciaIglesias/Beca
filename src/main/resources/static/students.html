@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>Gestión de Estudiantes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        body { font-family: system-ui, Arial, sans-serif; margin: 20px; }
+        h1 { margin-bottom: 8px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #f5f5f5; text-align: left; }
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-top: 16px; }
+        label { display: block; font-weight: 600; }
+        input { width: 100%; padding: 6px; }
+        .actions button { margin-right: 6px; }
+        .row { display: flex; gap: 8px; align-items: center; }
+        .error { color: #b00020; margin-top: 8px; }
+        .success { color: #0b7a0b; margin-top: 8px; }
+    </style>
+</head>
+<body>
+<h1>Gestión de Estudiantes</h1>
+<div class="row">
+    <button id="reloadBtn">Recargar</button>
+    <span id="msg"></span>
+</div>
+
+<table id="studentsTable">
+    <thead>
+    <tr>
+        <th>ID</th><th>Nombre</th><th>Edad</th><th>Correo</th><th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<h2>Crear / Editar</h2>
+<form id="studentForm">
+    <input type="hidden" id="id"/>
+    <div>
+        <label for="name">Nombre</label>
+        <input id="name" placeholder="Nombre" required/>
+    </div>
+    <div>
+        <label for="age">Edad</label>
+        <input id="age" type="number" min="1" placeholder="1" required/>
+    </div>
+    <div>
+        <label for="correo">Correo</label>
+        <input id="correo" type="email" placeholder="alguien@dominio.com" required/>
+    </div>
+    <div class="row">
+        <button type="submit">Guardar (POST/PUT)</button>
+        <button type="button" id="patchBtn">PATCH campos modificados</button>
+        <button type="button" id="resetBtn">Limpiar</button>
+    </div>
+    <div id="formMsg" class=""></div>
+</form>
+
+<script>
+    const API = '/students';
+    const tbody = document.querySelector('#studentsTable tbody');
+    const reloadBtn = document.getElementById('reloadBtn');
+    const msg = document.getElementById('msg');
+
+    const form = document.getElementById('studentForm');
+    const idEl = document.getElementById('id');
+    const nameEl = document.getElementById('name');
+    const ageEl = document.getElementById('age');
+    const correoEl = document.getElementById('correo');
+    const formMsg = document.getElementById('formMsg');
+    const patchBtn = document.getElementById('patchBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function setMsg(text, ok=false) {
+        msg.textContent = text || '';
+        msg.className = ok ? 'success' : 'error';
+        if (!text) msg.className = '';
+    }
+    function setFormMsg(text, ok=false) {
+        formMsg.textContent = text || '';
+        formMsg.className = ok ? 'success' : 'error';
+        if (!text) formMsg.className = '';
+    }
+
+    async function load() {
+        setMsg('Cargando...');
+        tbody.innerHTML = '';
+        try {
+            const res = await fetch(API);
+            if (!res.ok) throw new Error('Fallo al cargar');
+            const data = await res.json();
+            for (const s of data) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+            <td>${s.id}</td>
+            <td>${escapeHtml(s.name)}</td>
+            <td>${s.age}</td>
+            <td>${escapeHtml(s.correo)}</td>
+            <td class="actions">
+              <button data-id="${s.id}" data-action="edit">Editar</button>
+              <button data-id="${s.id}" data-action="delete">Borrar</button>
+            </td>`;
+                tbody.appendChild(tr);
+            }
+            setMsg('OK', true);
+        } catch (e) {
+            setMsg(e.message || 'Error cargando lista');
+        }
+    }
+
+    tbody.addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('button');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const action = btn.dataset.action;
+        if (action === 'edit') {
+            try {
+                const res = await fetch(`${API}/${id}`);
+                if (!res.ok) throw new Error('No encontrado');
+                const s = await res.json();
+                idEl.value = s.id;
+                nameEl.value = s.name;
+                ageEl.value = s.age;
+                correoEl.value = s.correo;
+                setFormMsg('Editando ID ' + s.id, true);
+            } catch (e) {
+                setFormMsg('Error al cargar estudiante');
+            }
+        } else if (action === 'delete') {
+            if (!confirm('¿Borrar estudiante ' + id + '?')) return;
+            const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+            if (res.status === 204) {
+                setMsg('Borrado OK', true);
+                load();
+            } else {
+                const txt = await res.text();
+                setMsg('Error al borrar: ' + txt);
+            }
+        }
+    });
+
+    form.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const payload = {
+            name: nameEl.value.trim(),
+            age: Number(ageEl.value),
+            correo: correoEl.value.trim()
+        };
+        if (!payload.name || !payload.age || !payload.correo) {
+            setFormMsg('Completa todos los campos');
+            return;
+        }
+        try {
+            let res;
+            if (idEl.value) {
+                // PUT reemplazo completo
+                res = await fetch(`${API}/${idEl.value}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                // POST crear
+                res = await fetch(API, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(payload)
+                });
+            }
+            if (res.ok) {
+                setFormMsg('Guardado OK', true);
+                form.reset();
+                idEl.value = '';
+                load();
+            } else {
+                const body = await res.json().catch(()=>({}));
+                setFormMsg('Error: ' + (body.message || JSON.stringify(body)));
+            }
+        } catch (e) {
+            setFormMsg('Error de red');
+        }
+    });
+
+    patchBtn.addEventListener('click', async () => {
+        if (!idEl.value) {
+            setFormMsg('Selecciona antes un estudiante a editar');
+            return;
+        }
+        const fields = {};
+        if (nameEl.value.trim()) fields.name = nameEl.value.trim();
+        if (ageEl.value) fields.age = Number(ageEl.value);
+        if (correoEl.value.trim()) fields.correo = correoEl.value.trim();
+
+        if (Object.keys(fields).length === 0) {
+            setFormMsg('No hay cambios para PATCH');
+            return;
+        }
+        const res = await fetch(`${API}/${idEl.value}`, {
+            method: 'PATCH',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(fields)
+        });
+        if (res.ok) {
+            setFormMsg('PATCH OK', true);
+            form.reset();
+            idEl.value = '';
+            load();
+        } else {
+            const body = await res.json().catch(()=>({}));
+            setFormMsg('Error PATCH: ' + (body.message || JSON.stringify(body)));
+        }
+    });
+
+    resetBtn.addEventListener('click', () => {
+        form.reset();
+        idEl.value = '';
+        setFormMsg('');
+    });
+
+    function escapeHtml(s) {
+        return s?.replace(/[&<>"']/g, c => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[c])) || '';
+    }
+
+    load();
+    reloadBtn.addEventListener('click', load);
+</script>
+</body>
+</html>
