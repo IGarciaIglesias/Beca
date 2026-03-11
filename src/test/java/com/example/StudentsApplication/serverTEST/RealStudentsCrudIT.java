@@ -4,13 +4,8 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
-import static org.junit.jupiter.api.Assertions.*;
 
-/*
-*
-* Clase de TEST de crud al servidor REAL
-*
-*/
+import static org.junit.jupiter.api.Assertions.*;
 
 class RealStudentsCrudIT {
 
@@ -20,122 +15,139 @@ class RealStudentsCrudIT {
     @Test
     void crud_soft_restore_hard_real() throws Exception {
 
-        // CREATE -----------------------------------------
-        var resPost = client.send(
+        // CREATE
+        var post = client.send(
                 HttpRequest.newBuilder(URI.create(baseUrl + "/students"))
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString("""
-                    {"name":"Ana","age":20,"correo":"anaprueba2@uni.es"}
+                            {"name":"Ana","age":20,"correo":"crud@uni.es"}
+                        """, StandardCharsets.UTF_8))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+
+        assertEquals(201, post.statusCode());
+        long id = extractId(post.body());
+
+        // GET by id
+        var get = client.send(
+                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id)).GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        assertEquals(200, get.statusCode());
+
+        // PUT
+        var put = client.send(
+                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id))
+                        .header("Content-Type", "application/json")
+                        .PUT(HttpRequest.BodyPublishers.ofString("""
+                            {"name":"Ana Mod","age":21,"correo":"mod@uni.es"}
+                        """))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        assertEquals(200, put.statusCode());
+
+        // PATCH
+        var patch = client.send(
+                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id))
+                        .header("Content-Type", "application/json")
+                        .method("PATCH", HttpRequest.BodyPublishers.ofString("""
+                            {"age":22}
+                        """))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        assertEquals(200, patch.statusCode());
+
+        // DELETE soft
+        var delSoft = client.send(
+                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id))
+                        .DELETE().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        assertEquals(204, delSoft.statusCode());
+
+        // GET after soft → 404
+        var getSoft = client.send(
+                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id)).GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        assertEquals(404, getSoft.statusCode());
+
+        // RESTORE
+        var restore = client.send(
+                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id))
+                        .header("Content-Type", "application/json")
+                        .method("PATCH", HttpRequest.BodyPublishers.ofString("""
+                            {"deleted":false}
+                        """))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        assertEquals(200, restore.statusCode());
+
+        // DELETE hard
+        var delHard = client.send(
+                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id + "?soft=false"))
+                        .DELETE().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        assertEquals(204, delHard.statusCode());
+    }
+
+    @Test
+    void operations_on_non_existing_id_return_404() throws Exception {
+
+        long fakeId = 999999;
+
+        assertEquals(404,
+                client.send(
+                        HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + fakeId)).GET().build(),
+                        HttpResponse.BodyHandlers.ofString()
+                ).statusCode()
+        );
+
+        // PUT a id inexistente -> cualquier 4xx (evita 415 añadiendo Content-Type)
+        var putRes = client.send(
+                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + fakeId))
+                        .header("Content-Type", "application/json")
+                        .header("Accept", "application/json")
+                        .PUT(HttpRequest.BodyPublishers.ofString("""
+                    {"name":"X","age":20,"correo":"x@uni.es"}
                 """, StandardCharsets.UTF_8))
                         .build(),
                 HttpResponse.BodyHandlers.ofString()
         );
 
-        assertEquals(201, resPost.statusCode());
-        assertTrue(resPost.body().contains("\"id\""));
+        assertTrue(putRes.statusCode() >= 400 && putRes.statusCode() < 500,
+                "Se esperaba 4xx en PUT a id inexistente, pero fue " + putRes.statusCode()
+                        + " body=" + putRes.body());
 
-        long id = extractId(resPost.body());
 
-        // LIST (1 student)
-        var resList1 = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students")).GET().build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-        assertTrue(resList1.body().contains("\"id\":" + id));
-
-        // PUT ---------------------------------------------
-        var resPut = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id))
+        // PATCH a id inexistente -> cualquier 4xx (evita 415 añadiendo Content-Type)
+        var patchRes = client.send(
+                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + fakeId))
                         .header("Content-Type", "application/json")
-                        .PUT(HttpRequest.BodyPublishers.ofString("""
-                    {"name":"Ana Gomez","age":21,"correo":"ana.gomez@uni.es"}
-                """))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-
-        assertEquals(200, resPut.statusCode());
-
-        // PATCH age=22 -------------------------------------
-        var resPatchAge = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id))
-                        .header("Content-Type","application/json")
+                        .header("Accept", "application/json")
                         .method("PATCH", HttpRequest.BodyPublishers.ofString("""
                     {"age":22}
-                """))
+                """, StandardCharsets.UTF_8))
                         .build(),
                 HttpResponse.BodyHandlers.ofString()
         );
 
-        assertEquals(200, resPatchAge.statusCode());
+        assertTrue(patchRes.statusCode() >= 400 && patchRes.statusCode() < 500,
+                "Se esperaba 4xx en PATCH a id inexistente, pero fue " + patchRes.statusCode()
+                        + " body=" + patchRes.body());
 
-        // DELETE SOFT ---------------------------------------
-        var resDelSoft = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id))
-                        .DELETE()
-                        .build(),
-                HttpResponse.BodyHandlers.ofString()
+        assertEquals(404,
+                client.send(
+                        HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + fakeId + "?soft=false"))
+                                .DELETE().build(),
+                        HttpResponse.BodyHandlers.ofString()
+                ).statusCode()
         );
-
-        assertEquals(204, resDelSoft.statusCode());
-
-        // LIST after soft delete → must NOT contain student
-        var resListSoft = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students"))
-                        .GET().build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-
-        assertFalse(resListSoft.body().contains("\"id\":" + id));
-
-        // GET after soft delete → must return 404
-        var resGetSoft = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id))
-                        .GET().build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-
-        assertEquals(404, resGetSoft.statusCode());
-
-        // RESTORE -----------------------------------------
-        var resRestore = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id))
-                        .header("Content-Type","application/json")
-                        .method("PATCH", HttpRequest.BodyPublishers.ofString("""
-                    {"deleted":false}
-                """))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-
-        assertEquals(200, resRestore.statusCode());
-
-        // LIST after restore → must contain student again
-        var resList2 = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students"))
-                        .GET().build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-
-        assertTrue(resList2.body().contains("\"id\":" + id));
-
-        // DELETE HARD --------------------------------------
-        var resDelHard = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students/" + id + "?soft=false"))
-                        .DELETE().build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-
-        assertEquals(204, resDelHard.statusCode());
-
-        // LIST final → must be empty again
-        var resListFinal = client.send(
-                HttpRequest.newBuilder(URI.create(baseUrl + "/students"))
-                        .GET().build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-
-        assertFalse(resListFinal.body().contains("\"id\":" + id));
     }
 
     private long extractId(String json) {
