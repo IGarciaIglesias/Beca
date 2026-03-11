@@ -23,15 +23,15 @@ public class Main {
     public static HttpClient client = HttpClient.newHttpClient();
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        SwingUtilities.invokeLater(() -> {
+        /*SwingUtilities.invokeLater(() -> {
             try {
                 PanelDeGestion panelDeGestion = new PanelDeGestion();
                 panelDeGestion.setVisible(true);
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        });
-        //menu();
+        });*/
+        menu();
     }
 
     public static void menu() throws IOException, InterruptedException {
