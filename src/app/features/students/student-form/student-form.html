@@ -1,0 +1,56 @@
+<h2 *ngIf="!id">Nuevo estudiante</h2>
+<h2 *ngIf="id">Editar estudiante #{{ id }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+
+  <!-- NAME -->
+  <div>
+    <label>Nombre</label><br />
+    <input formControlName="name" />
+
+    <div style="color:red"
+         *ngIf="form.get('name')?.touched && form.get('name')?.invalid">
+      Nombre obligatorio
+    </div>
+
+    <div style="color:red" *ngIf="serverErrors['name']">
+      {{ serverErrors['name'] }}
+    </div>
+  </div>
+
+  <!-- AGE -->
+  <div>
+    <label>Edad</label><br />
+    <input type="number" formControlName="age" />
+
+    <div style="color:red"
+         *ngIf="form.get('age')?.touched && form.get('age')?.invalid">
+      Edad obligatoria (≥ 1)
+    </div>
+
+    <div style="color:red" *ngIf="serverErrors['age']">
+      {{ serverErrors['age'] }}
+    </div>
+  </div>
+
+  <!-- CORREO -->
+  <div>
+    <label>Correo</label><br />
+    <input formControlName="correo" />
+
+    <div style="color:red"
+         *ngIf="form.get('correo')?.touched && form.get('correo')?.invalid">
+      Correo obligatorio con formato válido
+    </div>
+
+    <div style="color:red" *ngIf="serverErrors['correo']">
+      {{ serverErrors['correo'] }}
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="saving">
+    {{ saving ? 'Guardando...' : 'Guardar' }}
+  </button>
+
+  <a routerLink="/students" style="margin-left:12px;">Cancelar</a>
+</form>

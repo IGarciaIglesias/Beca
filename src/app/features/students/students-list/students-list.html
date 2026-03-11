@@ -1,0 +1,35 @@
+<h2>Students</h2>
+
+<div style="display:flex; gap:12px; margin-bottom: 12px;">
+  <a routerLink="/students/new">Nuevo</a>
+  <button (click)="refreshCache()">Refresh cache</button>
+  <button (click)="reload()">Recargar</button>
+</div>
+
+<ng-container *ngIf="vm$ | async as vm">
+  <div *ngIf="vm.loading">Cargando...</div>
+  <div *ngIf="vm.error" style="color:red">{{ vm.error }}</div>
+
+  <table *ngIf="!vm.loading && vm.students.length > 0">
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Age</th><th>Correo</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of vm.students">
+        <td>{{ s.id }}</td>
+        <td><a [routerLink]="['/students', s.id]">{{ s.name }}</a></td>
+        <td>{{ s.age }}</td>
+        <td>{{ s.correo }}</td>
+        <td style="display:flex; gap:8px;">
+          <a [routerLink]="['/students', s.id, 'edit']">Edit</a>
+          <button (click)="deleteSoft(s.id!)">Soft delete</button>
+          <button (click)="deleteHard(s.id!)">Hard delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!vm.loading && vm.students.length === 0">
+    No hay alumnos activos.
+  </div>
+</ng-container>

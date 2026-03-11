@@ -1,0 +1,18 @@
+<ng-container *ngIf="vm$ | async as vm">
+  <div *ngIf="vm.loading">Cargando...</div>
+
+  <div *ngIf="vm.error" style="color:red">{{ vm.error }}</div>
+
+  <div *ngIf="!vm.loading && vm.student">
+    <h2>Detalle #{{ vm.student.id }}</h2>
+    <p><b>Nombre:</b> {{ vm.student.name }}</p>
+    <p><b>Edad:</b> {{ vm.student.age }}</p>
+    <p><b>Correo:</b> {{ vm.student.correo }}</p>
+
+    <div style="display:flex; gap:10px;">
+      <a [routerLink]="['/students', vm.student.id, 'edit']">Editar</a>
+      <a routerLink="/students">Volver</a>
+      <button (click)="restore(vm.student.id!)">Restaurar (PATCH deleted=false)</button>
+    </div>
+  </div>
+</ng-container>

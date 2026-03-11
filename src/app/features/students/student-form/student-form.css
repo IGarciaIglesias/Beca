@@ -1,0 +1,111 @@
+/* ===== Contenedor del form ===== */
+form {
+  max-width: 520px;
+  margin-top: 16px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ===== Grupos ===== */
+form > div {
+  margin-bottom: 14px;
+}
+
+/* ===== Labels ===== */
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ===== Inputs ===== */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
+/* ===== Textarea ===== */
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ===== Estados Angular ===== */
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+  border-color: #dc2626;
+}
+
+input.ng-valid.ng-touched,
+select.ng-valid.ng-touched,
+textarea.ng-valid.ng-touched {
+  border-color: #16a34a;
+}
+
+/* ===== Mensajes de error ===== */
+form small,
+.form-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #dc2626;
+}
+
+/* ===== Botonera ===== */
+form button {
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+form button:hover {
+  background: #1d4ed8;
+}
+
+/* Botón secundario */
+form a,
+form button[type="button"] {
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #d1d5db;
+  text-decoration: none;
+  margin-left: 8px;
+}
+
+form a:hover,
+form button[type="button"]:hover {
+  background: #e5e7eb;
+}
+
+/* ===== Disabled ===== */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
