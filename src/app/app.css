@@ -45,6 +45,17 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+.btn-cargar {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.btn-cargar:hover {
+  background-color: #e86a04;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 .btn-editar {
   background-color: #007bff;
   color: white;

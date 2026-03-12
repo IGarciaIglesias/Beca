@@ -6,13 +6,12 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, NgClass, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: `./app.html`,
   styleUrls: ['./app.css']
 })
 export class App implements OnInit {
   estudiantes: Estudiante[] = [];
-  isLoading = true;
  
   mostrarModal = false;
   modoEditar = false;
@@ -31,10 +30,6 @@ export class App implements OnInit {
     this.estudianteService.getEstudiantes().subscribe({
       next: (response : Estudiante[]) => {
         this.estudiantes = response.sort((a, b) => a.id - b.id);
-        this.isLoading = false; 
-      }, 
-      error: (err) => {
-        this.isLoading = false;
       }
     })
   }

@@ -1,12 +1,14 @@
 <div class="container">
   <div class="header">
     <h1>Gestión de estudiantes</h1>
+    <button class="btn btn-cargar" (click)="loadEstudiantes()">
+      Cargar estudiantes
+    </button>
     <button class="btn btn-crear" (click)="abrirModalCrear()">
       + Nuevo estudiante
     </button>
   </div>
-  <div class="loading" *ngIf="isLoading">Cargando estudiantes...</div>
-  <div class="table-wrapper"  *ngIf="!isLoading && estudiantes.length > 0">
+  <div class="table-wrapper">
     <table>
       <thead>
         <tr>
@@ -65,7 +67,7 @@
   </div>
 </div>
 
-<div class="overlay" *ngIf="mostrarConfirmacion" (click)="cerrarModal()">
+<div class="overlay" *ngIf="mostrarConfirmacion" (click)="cerrarConfirmacion()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-confirm">
       <h2>Confirmar Borrado</h2>
