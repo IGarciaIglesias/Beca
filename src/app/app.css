@@ -1,0 +1,267 @@
+/* Contenedor principal */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #ddd;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #333;
+}
+
+/* Botones */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-crear {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-crear:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-editar {
+  background-color: #007bff;
+  color: white;
+  margin-right: 5px;
+}
+
+.btn-editar:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.btn-guardar {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-guardar:hover {
+  background-color: #218838;
+}
+
+.btn-cancelar {
+  background-color: #6c757d;
+  color: white;
+  margin-right: 10px;
+}
+
+.btn-cancelar:hover {
+  background-color: #5a6268;
+}
+
+.btn-cerrar {
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+}
+
+.btn-cerrar:hover {
+  color: #333;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
+/* Tabla */
+.table-wrapper {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: 100%;
+}
+
+thead {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+}
+
+tbody tr {
+  border-bottom: 1px solid #dee2e6;
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+td {
+  padding: 15px;
+  color: #555;
+}
+
+.acciones {
+  display: flex;
+  gap: 5px;
+}
+
+/* Modales */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header,
+.modal-confirm {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-confirm {
+  justify-content: center;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-header h2,
+.modal-confirm h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-body p {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+}
+
+/* Campos de formulario */
+.campo {
+  margin-bottom: 15px;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.campo input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.campo input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .modal {
+    width: 95%;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
