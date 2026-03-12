@@ -137,4 +137,10 @@ public class ServidorPruebaDbController {
             return ResponseEntity.noContent().build();
         }
     }
+
+    @DeleteMapping("/borradoHard/{id}")
+    public ResponseEntity<Void> eliminarEstudianteHard(@PathVariable Long id){
+        service.eliminarEstudiante(id);
+        return ResponseEntity.notFound().<Void>build();
+    }
 }
