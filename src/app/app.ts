@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
 import { EstudianteService, Estudiante } from './EstudianteService';
 import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./app.css']
 })
 export class App implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   estudiantes: Estudiante[] = [];
  
   mostrarModal = false;
@@ -30,6 +32,7 @@ export class App implements OnInit {
     this.estudianteService.getEstudiantes().subscribe({
       next: (response : Estudiante[]) => {
         this.estudiantes = response.sort((a, b) => a.id - b.id);
+        this.cdr.detectChanges();
       }
     })
   }
