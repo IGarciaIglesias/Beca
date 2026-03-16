@@ -5,8 +5,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import java.io.File;
-
 @SpringBootApplication
 public class PricingApplication {
 
@@ -16,7 +14,7 @@ public class PricingApplication {
 
     @Bean(destroyMethod = "close")
     public Aeron aeron() {
-        String dir = new File(System.getProperty("user.dir"), "aeron-marketdata").getAbsolutePath();
+        String dir = System.getProperty("aeron.dir", "/tmp/aeron-backtest");
         return Aeron.connect(new Aeron.Context().aeronDirectoryName(dir));
     }
 }

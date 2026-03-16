@@ -37,9 +37,10 @@ public class IndicatorService {
         try (Subscription sub = aeron.addSubscription(AeronChannels.CHANNEL_IPC, AeronChannels.STREAM_PRICES);
              Publication pub = aeron.addPublication(AeronChannels.CHANNEL_IPC, AeronChannels.STREAM_SIGNALS)) {
             while (!sub.isConnected()) idle.idle();
-            while (!pub.isConnected()) idle.idle();
+            long lastStatusAt = System.currentTimeMillis();
+            System.out.println("[indicator] connected to prices stream");
             FragmentHandler handler = (buffer, offset, length, header) -> {
-                String line = buffer.getStringAscii(offset, length);
+                String line = buffer.getStringWithoutLengthAscii(offset, length);
                 MessageFormat.Parsed p = MessageFormat.parse(line);
                 if (p == null || !"PRICE".equals(p.type) || p.parts.length < 4) return;
                 double close = Double.parseDouble(p.parts[3].trim());
@@ -48,11 +49,17 @@ public class IndicatorService {
             while (true) {
                 int n = sub.poll(handler, 10);
                 if (n <= 0) idle.idle();
+                long now = System.currentTimeMillis();
+                if (now - lastStatusAt >= 5000) {
+                    System.out.println("[indicator] heartbeat subConnected=" + sub.isConnected() + " pubConnected=" + pub.isConnected());
+                    lastStatusAt = now;
+                }
             }
         }
     }
 
     private void onPrice(double close, Publication pub) {
+        if (!pub.isConnected()) return;
         String action = random.nextBoolean() ? "buy" : "sell";
         double strength = 1.0;
         String msg = MessageFormat.signal(action, strength, close);
