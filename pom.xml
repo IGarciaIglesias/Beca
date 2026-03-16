@@ -25,6 +25,9 @@
 		<wiremock.version>3.5.4</wiremock.version>
 		<!-- Versión de Rest Assured (Java 17+) -->
 		<restassured.version>6.0.0</restassured.version>
+		<sonar.organization>igarciaiglesias</sonar.organization>
+		<sonar.projectKey>igarciaiglesias_sonar1</sonar.projectKey>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 
 	<dependencies>
