@@ -1,7 +1,5 @@
 package com.example.demo;
 
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -107,17 +105,12 @@ public class ServidorPruebaDbController {
     public ResponseEntity<Estudiante> actualizarEstadoEliminarSoft(
             @PathVariable Long id){
 
-        List<Estudiante> estudiantes = service.buscarEstudiantesBorrados();
-        if (!estudiantes.isEmpty()) {
-            return repository.findById(id)
-                    .map(estudiante -> {
-                        estudiante.setDeleted(true);
-                        return ResponseEntity.ok(service.guardarEstudiante(estudiante));
-                    })
-                    .orElse(ResponseEntity.notFound().build());
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return repository.findById(id)
+                .map(estudiante -> {
+                    estudiante.setDeleted(true);
+                    return ResponseEntity.ok(service.guardarEstudiante(estudiante));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // Método put para el deshacer el borradoSoft, se devuelve el registro a su estado inicial
@@ -125,22 +118,17 @@ public class ServidorPruebaDbController {
     public ResponseEntity<Estudiante> deshacerEliminadoSoft(
             @PathVariable Long id){
 
-        List<Estudiante> estudiantes = service.buscarEstudiantesBorrados();
-        if (!estudiantes.isEmpty()) {
-            return repository.findById(id)
-                    .map(estudiante -> {
-                        estudiante.setDeleted(false);
-                        return ResponseEntity.ok(service.guardarEstudiante(estudiante));
-                    })
-                    .orElse(ResponseEntity.notFound().build());
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return repository.findById(id)
+                .map(estudiante -> {
+                    estudiante.setDeleted(false);
+                    return ResponseEntity.ok(service.guardarEstudiante(estudiante));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/borradoHard/{id}")
     public ResponseEntity<Void> eliminarEstudianteHard(@PathVariable Long id){
         service.eliminarEstudiante(id);
-        return ResponseEntity.notFound().<Void>build();
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -14,13 +15,9 @@ import java.io.PrintStream;
 @EnableCaching
 @SpringBootApplication
 public class ServidorPruebaDbApplication extends JFrame {
-
-	private Process proceso;
 	private JTextArea log;
-	private JButton btnStart, btnStop;
 	private String[] args;
 	private ConfigurableApplicationContext contexto;
-
 
 	public static void main(String[] args) {
 		new ServidorPruebaDbApplication().iniciarInterfaz(args);
@@ -46,6 +43,15 @@ public class ServidorPruebaDbApplication extends JFrame {
 		System.setOut(printStream);
 		System.setErr(printStream);
 
+		JPanel botones = getJPanel();
+
+		frame.add(botones, BorderLayout.NORTH);
+		frame.add(new JScrollPane(log), BorderLayout.CENTER);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+	}
+
+	private @NonNull JPanel getJPanel() {
 		JButton btnStart = new JButton("Iniciar servidor");
 		JButton btnStop = new JButton("Detener servidor");
 
@@ -64,11 +70,7 @@ public class ServidorPruebaDbApplication extends JFrame {
 		JPanel botones = new JPanel(new GridLayout(1, 2, 8, 0));
 		botones.add(btnStart);
 		botones.add(btnStop);
-
-		frame.add(botones, BorderLayout.NORTH);
-		frame.add(new JScrollPane(log), BorderLayout.CENTER);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+		return botones;
 	}
 
 }

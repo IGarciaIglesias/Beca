@@ -1,209 +1,255 @@
 package com.example.demo;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.AssertionsKt.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+@ExtendWith(MockitoExtension.class)
 class ServidorPruebaDbControllerTest {
+    @Mock
+    private EstudianteRepository repository;
 
-    String urlBase = "http://localhost:8080/";
-    public static HttpClient client = HttpClient.newHttpClient();
+    @Mock
+    private EstudianteService service;
 
-    HttpResponse<String> peticionGet(String urlCompleta) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlCompleta))
-                .GET()
-                .build();
+    @InjectMocks
+    private ServidorPruebaDbController controller;
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println("Test realizado -> " + response);
-        return response;
-    }
+    @Test
+    void cargarEstudiantes_204() {
+        when(service.buscarEstudiante()).thenReturn(Collections.emptyList());
 
-    HttpResponse<String> peticionPost(String urlCompleta, String jsonData) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlCompleta))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonData))
-                .build();
+        ResponseEntity<List<Estudiante>> resp = controller.obtenerTodos();
 
-        HttpResponse<String> response = client.send(request,
-                HttpResponse.BodyHandlers.ofString());
-        System.out.println("Test realizado -> " + response);
-        return response;
-    }
-
-    HttpResponse<String> peticionPut(String urlCompleta, int id, String jsonData) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlCompleta + id))
-                .header("Content-Type", "application/json")
-                .PUT(HttpRequest.BodyPublishers.ofString(jsonData))
-                .build();
-
-        HttpResponse<String> response = client.send(request,
-                HttpResponse.BodyHandlers.ofString());
-        System.out.println("Test realizado -> " + response);
-        return response;
-    }
-
-    HttpResponse<String> peticionPutActualizar(String urlCompleta, int id) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlCompleta + id))
-                .header("Content-Type", "application/json")
-                .PUT(HttpRequest.BodyPublishers.noBody())
-                .build();
-
-        HttpResponse<String> response = client.send(request,
-                HttpResponse.BodyHandlers.ofString());
-        System.out.println("Test realizado -> " + response);
-        return response;
-    }
-
-    HttpResponse<String> peticionPatch(String urlCompleta, int id, String jsonData) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlCompleta + id))
-                .header("Content-Type", "application/json")
-                .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonData))
-                .build();
-
-        HttpResponse<String> response = client.send(request,
-                HttpResponse.BodyHandlers.ofString());
-        System.out.println("Test realizado -> " + response);
-        return response;
-    }
-
-    HttpResponse<String> peticionDelete(String urlCompleta, int id) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlCompleta + id))
-                .header("Content-Type", "application/json")
-                .PUT(HttpRequest.BodyPublishers.noBody())
-                .build();
-
-        HttpResponse<String> response = client.send(request,
-                HttpResponse.BodyHandlers.ofString());
-        System.out.println("Test realizado -> " + response);
-        return response;
+        assertEquals(HttpStatus.NO_CONTENT, resp.getStatusCode());
     }
 
     @Test
-    void obtenerTodos() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes";
-        int codigoRespuesta = peticionGet(urlCompleta).statusCode();
-        assertEquals(200, codigoRespuesta);
-    }
+    void cargarEstudiantes_200() {
+        when(service.buscarEstudiante()).thenReturn(List.of(new Estudiante()));
 
-    // Revisar en ambos que también sean válidos cuando el código de respuesta es 204
-    @Test
-    void obtenerNoEliminados() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/noEliminados";
-        int codigoRespuesta = peticionGet(urlCompleta).statusCode();
-        assertEquals(200, codigoRespuesta);
+        ResponseEntity<List<Estudiante>> resp = controller.obtenerTodos();
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+        assertNotNull(resp.getBody());
+        assertFalse(resp.getBody().isEmpty());
     }
 
     @Test
-    void obtenerEliminados() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/eliminados";
-        int codigoRespuesta = peticionGet(urlCompleta).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void cargarEstudiantesBorrados_204() {
+        when(service.buscarEstudiantesBorrados()).thenReturn(Collections.emptyList());
+
+        ResponseEntity<List<Estudiante>> resp = controller.obtenerEliminados();
+
+        assertEquals(HttpStatus.NO_CONTENT, resp.getStatusCode());
     }
 
     @Test
-    void crarEstudiante() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/crear";
-        String jsonData = "{\"nombre\": \"Juan\", \"edad\":40,\"correo\": \"juan@gmail.com\", \"deleted\": \"false\"}";
-        int codigoRespuesta = peticionPost(urlCompleta, jsonData).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void cargarEstudiantesBorrados_200() {
+        when(service.buscarEstudiantesBorrados()).thenReturn(List.of(new Estudiante()));
+
+        ResponseEntity<List<Estudiante>> resp = controller.obtenerEliminados();
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+        assertNotNull(resp.getBody());
+        assertFalse(resp.getBody().isEmpty());
     }
 
     @Test
-    void actualizarEstudianteCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/completo/";
-        String jsonData = "{\"nombre\": \"Juan\", \"edad\":40,\"correo\": \"juan@gmail.com\", \"deleted\": \"false\"}";
-        int id = 1;
-        int codigoRespuesta = peticionPut(urlCompleta, id, jsonData).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void cargarEstudiantesNoBorrados_204() {
+        when(service.buscarEstudiantesNoBorrados()).thenReturn(Collections.emptyList());
+
+        ResponseEntity<List<Estudiante>> resp = controller.obtenerNoEliminados();
+
+        assertEquals(HttpStatus.NO_CONTENT, resp.getStatusCode());
     }
 
     @Test
-    void actualizarEstudianteNoCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/completo/";
-        String jsonData = "{\"nombre\": \"Juan\", \"edad\":40,\"correo\": \"juan@gmail.com\", \"deleted\": \"false\"}";
-        int id = 9999999;
-        int codigoRespuesta = peticionPut(urlCompleta, id, jsonData).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void cargarEstudiantesNoBorrados_200() {
+        when(service.buscarEstudiantesNoBorrados()).thenReturn(List.of(new Estudiante()));
+
+        ResponseEntity<List<Estudiante>> resp = controller.obtenerNoEliminados();
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+        assertNotNull(resp.getBody());
+        assertFalse(resp.getBody().isEmpty());
     }
 
     @Test
-    void actualizarEstudianteParcialmenteCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/parcial/";
-        String jsonData = "{\"nombre\": \"\", \"edad\":40,\"correo\": \"\", \"deleted\": \"false\"}";
-        int id = 1;
-        int codigoRespuesta = peticionPatch(urlCompleta, id, jsonData).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void crarEstudifantes_200() {
+        Estudiante estudiante = new Estudiante(1L, "María", 55, "maria@gmail.com", false);
+        when(service.guardarEstudiante(estudiante)).thenReturn(estudiante);
+
+        ResponseEntity<Estudiante> resp = controller.crarEstudiante(estudiante);
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
     }
 
     @Test
-    void actualizarEstudianteParcialmenteNoCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/parcial/";
-        String jsonData = "{\"nombre\": \"\", \"edad\":40,\"correo\": \"\", \"deleted\": \"false\"}";
-        int id = 9999999;
-        int codigoRespuesta = peticionPatch(urlCompleta, id, jsonData).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void actualizarEstudiante_204() {
+        Long id = 99999L;
+
+        // Estudiante actualizado
+        Estudiante actualizado = new Estudiante();
+        actualizado.setNombre("Nombre nuevo");
+        actualizado.setEdad(20);
+        actualizado.setCorreo("nuevo@gmail.com");
+        actualizado.setDeleted(false);
+
+        // Buscar estudiante, devuelve nada por que no existe
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        // Código de respuesta
+        ResponseEntity<Estudiante> resp = controller.actualizarEstudiante(id, actualizado);
+
+        assertEquals(HttpStatus.NOT_FOUND, resp.getStatusCode());
+        assertNull(resp.getBody());
     }
 
     @Test
-    void actualizarEstadoEliminarSoftCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/borradoSoft/";
-        int id = 15;
-        int codigoRespuesta = peticionPutActualizar(urlCompleta, id).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void actualizarEstudianteCompleto_200() {
+        Long id = 1L;
+
+        // Crear nuevo estudiante
+        Estudiante existente = new Estudiante();
+        existente.setNombre("Nombre viejo");
+        existente.setEdad(18);
+        existente.setCorreo("viejo@gmail.com");
+        existente.setDeleted(false);
+
+        // Actualizar los datos del estudiante creado
+        Estudiante actualizado = new Estudiante();
+        actualizado.setNombre("Nombre nuevo");
+        actualizado.setEdad(20);
+        actualizado.setCorreo("nuevo@gmail.com");
+        existente.setDeleted(false);
+
+        when(repository.findById(id)).thenReturn(Optional.of(existente));
+
+        when(service.guardarEstudiante(any(Estudiante.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // Código de respuesta
+        ResponseEntity<Estudiante> resp = controller.actualizarEstudiante(id, actualizado);
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+
+        // Comprobar que se ha actualizado correctamente
+        assertNotNull(resp.getBody());
+        assertEquals("Nombre nuevo", resp.getBody().getNombre());
+        assertEquals(20, resp.getBody().getEdad());
+        assertEquals("nuevo@gmail.com", resp.getBody().getCorreo());
     }
 
     @Test
-    void actualizarEstadoEliminarSoftNoCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/borradoSoft/";
-        int id = 9999999;
-        int codigoRespuesta = peticionPutActualizar(urlCompleta, id).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void cuandoSeActualizaCorrectamenteParcial_devuelve200() {
+        Long id = 1L;
+
+        // Crear nuevo estudiante
+        Estudiante existente = new Estudiante();
+        existente.setNombre("Nombre viejo");
+        existente.setEdad(18);
+        existente.setCorreo("viejo@gmail.com");
+        existente.setDeleted(false);
+
+        // Actualizar los datos del estudiante creado
+        Estudiante actualizado = new Estudiante();
+        actualizado.setNombre("");
+        actualizado.setEdad(20);
+        actualizado.setCorreo("");
+        existente.setDeleted(false);
+
+        when(repository.findById(id)).thenReturn(Optional.of(existente));
+
+        when(service.guardarEstudiante(any(Estudiante.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // Código de respuesta
+        ResponseEntity<Estudiante> resp = controller.actualizarEstudianteParcialmente(id, actualizado);
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+
+        // Comprobar que se ha actualizado correctamente
+        assertNotNull(resp.getBody());
+        assertEquals("Nombre viejo", resp.getBody().getNombre());
+        assertEquals(20, resp.getBody().getEdad());
+        assertEquals("viejo@gmail.com", resp.getBody().getCorreo());
     }
 
     @Test
-    void eliminarEstudianteHardCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/borradoSoft/";
-        int id = 13;
-        int codigoRespuesta = peticionDelete(urlCompleta, id).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void borradoSoft_200() {
+        Long id = 1L;
+
+        // Crear nuevo estudiante
+        Estudiante existente = new Estudiante();
+        existente.setNombre("Nombre viejo");
+        existente.setEdad(18);
+        existente.setCorreo("viejo@gmail.com");
+        existente.setDeleted(false);
+
+        when(repository.findById(id)).thenReturn(Optional.of(existente));
+
+        when(service.guardarEstudiante(any(Estudiante.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // Código de respuesta
+        ResponseEntity<Estudiante> resp = controller.actualizarEstadoEliminarSoft(id);
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+
+        // Comprobar que se ha actualizado correctamente
+        assertNotNull(resp.getBody());
+        assertTrue(resp.getBody().isDeleted());
     }
 
     @Test
-    void eliminarEstudianteHardNoCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/borradoHard/";
-        int id = 9999999;
-        int codigoRespuesta = peticionDelete(urlCompleta, id).statusCode();
-        assertEquals(200, codigoRespuesta);
+    void deshacerBorradoSoft_200() {
+        Long id = 1L;
+
+        // Crear nuevo estudiante
+        Estudiante existente = new Estudiante();
+        existente.setNombre("Nombre viejo");
+        existente.setEdad(18);
+        existente.setCorreo("viejo@gmail.com");
+        existente.setDeleted(true); // En este caso está borrado, para poder realizar el resto correctamente
+
+        when(repository.findById(id)).thenReturn(Optional.of(existente));
+
+        when(service.guardarEstudiante(any(Estudiante.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // Código de respuesta
+        ResponseEntity<Estudiante> resp = controller.deshacerEliminadoSoft(id);
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+
+        // Comprobar que se ha actualizado correctamente
+        assertNotNull(resp.getBody());
+        assertFalse(resp.getBody().isDeleted());
     }
 
     @Test
-    void deshacerEliminadoSoftCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/devolverEstado/";
-        int id = 15;
-        int codigoRespuesta = peticionPutActualizar(urlCompleta, id).statusCode();
-        assertEquals(200, codigoRespuesta);
-    }
+    void borrarEstudiante_200() {
+        Long id = 1L;
 
-    @Test
-    void deshacerEliminadoSoftNoCorrecto() throws IOException, InterruptedException {
-        String urlCompleta = urlBase + "api/estudiantes/devolverEstado/";
-        int id = 9999999;
-        int codigoRespuesta = peticionPutActualizar(urlCompleta, id).statusCode();
-        assertEquals(200, codigoRespuesta);
-    }
+        ResponseEntity<Void> resp = controller.eliminarEstudianteHard(id);
 
+        assertEquals(HttpStatus.NO_CONTENT, resp.getStatusCode());
+        assertNull(resp.getBody());
+
+        verify(service).eliminarEstudiante(id);
+        verifyNoMoreInteractions(service);
+    }
 }

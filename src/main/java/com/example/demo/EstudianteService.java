@@ -6,7 +6,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EstudianteService {
@@ -18,20 +17,17 @@ public class EstudianteService {
 
     @Cacheable(value = "estudiantes", key = "'all'")
     List<Estudiante> buscarEstudiante(){
-        List<Estudiante> estudiantes = repository.findAll();
-        return estudiantes;
+        return repository.findAll();
     }
 
     @Cacheable(value = "estudiantes", key = "'deleted'")
     List<Estudiante> buscarEstudiantesBorrados(){
-        List<Estudiante> estudiantes = repository.findByDeleted(true);
-        return estudiantes;
+        return repository.findByDeleted(true);
     }
 
     @Cacheable(value = "estudiantes", key = "'noDeleted'")
     List<Estudiante> buscarEstudiantesNoBorrados(){
-        List<Estudiante> estudiantes = repository.findByDeleted(false);
-        return estudiantes;
+        return repository.findByDeleted(false);
     }
 
     @CachePut(value = "estudiantes", key = "#result.id")

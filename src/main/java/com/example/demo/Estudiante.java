@@ -1,16 +1,12 @@
 package com.example.demo;
 
-import com.hazelcast.nio.serialization.compact.CompactReader;
-import com.hazelcast.nio.serialization.compact.CompactSerializer;
-import com.hazelcast.nio.serialization.compact.CompactWriter;
 import jakarta.persistence.*;
-
 import java.io.Serializable;
 
 @Entity
 @Table(name = "estudiantes")
 
-public class Estudiante {
+public class Estudiante implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,10 +28,6 @@ public class Estudiante {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getNombre() {
