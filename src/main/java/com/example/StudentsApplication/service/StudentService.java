@@ -180,7 +180,7 @@ public class StudentService {
      *  - valores raros => true
      */
     private Boolean parseDeleted(Map<String, Object> fields) {
-        if (!fields.containsKey("deleted")) return boolean;
+        if (!fields.containsKey("deleted")) return null;
 
         Object v = fields.get("deleted");
         if (v == null) return null;

@@ -28,6 +28,9 @@
 		<sonar.organization>igarciaiglesias</sonar.organization>
 		<sonar.projectKey>igarciaiglesias_sonar1</sonar.projectKey>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.coverage.jacoco.xmlReportPaths>
+			target/site/jacoco/jacoco.xml
+		</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
 
 	<dependencies>
@@ -136,6 +139,44 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.14</version>
+
+				<executions>
+
+					<!-- Engancha el agente y define el exec -->
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<configuration>
+							<destFile>${project.build.directory}/jacoco.exec</destFile>
+						</configuration>
+					</execution>
+
+					<!-- Fuerza la generación del XML -->
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+							<outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+							<formats>
+								<format>XML</format>
+							</formats>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 
