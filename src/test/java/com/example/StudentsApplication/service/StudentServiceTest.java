@@ -35,7 +35,8 @@ class StudentServiceTest {
     @BeforeEach
     void setUp() {
         service = new StudentService(repo, validator, cache);
-        when(validator.validate(any(Student.class))).thenReturn(Set.of());
+        // IMPORTANTE: NO stubbear validator aquí.
+        // Se stubbeará solo en los tests que realmente validen.
     }
 
     // ------------------------
@@ -212,7 +213,6 @@ class StudentServiceTest {
         Student existingDeleted = student(5L, "Ana", 20, "a@uni.es", true);
         when(repo.findById(5L)).thenReturn(Optional.of(existingDeleted));
 
-        // intenta cambiar age, pero está deleted -> debe 404
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> service.patch(5L, Map.of("age", 22)));
         assertStatus(ex, HttpStatus.NOT_FOUND);
@@ -225,6 +225,7 @@ class StudentServiceTest {
         Student existingDeleted = student(5L, "Ana", 20, "a@uni.es", true);
         when(repo.findById(5L)).thenReturn(Optional.of(existingDeleted));
 
+        // aquí no debería validar (restauración deja deleted=false y retorna tras save)
         Student saved = student(5L, "Ana", 20, "a@uni.es", false);
         when(repo.save(any(Student.class))).thenReturn(saved);
 
@@ -233,6 +234,7 @@ class StudentServiceTest {
         assertFalse(Boolean.TRUE.equals(result.getDeleted()));
         verify(cache).putById(saved);
         verify(cache).evictAllLists();
+        verify(validator, never()).validate(any(Student.class));
     }
 
     @Test
@@ -248,8 +250,6 @@ class StudentServiceTest {
         assertTrue(Boolean.TRUE.equals(result.getDeleted()));
         verify(cache).evictById(7L);
         verify(cache).evictAllLists();
-
-        // Importante: como queda deleted, no debería validar ni aplicar otros campos
         verify(validator, never()).validate(any(Student.class));
     }
 
@@ -286,12 +286,14 @@ class StudentServiceTest {
         @SuppressWarnings("unchecked")
         ConstraintViolation<Student> v = mock(ConstraintViolation.class);
         when(v.getMessage()).thenReturn("name no puede estar vacío");
+
         when(validator.validate(any(Student.class))).thenReturn(Set.of(v));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> service.patch(11L, Map.of("name", "")));
         assertStatus(ex, HttpStatus.BAD_REQUEST);
-        assertTrue(ex.getReason() != null && ex.getReason().contains("name no puede estar vacío"));
+        assertNotNull(ex.getReason());
+        assertTrue(ex.getReason().contains("name no puede estar vacío"));
 
         verify(repo, never()).save(any());
     }
@@ -302,7 +304,9 @@ class StudentServiceTest {
         when(repo.findById(12L)).thenReturn(Optional.of(existing));
         when(repo.existsByCorreoIgnoreCase("new@uni.es")).thenReturn(false);
 
-        // Capturamos el Student que se guarda para verificar que aplicó cambios
+        // Este caso sí llega a validate => stub aquí
+        when(validator.validate(any(Student.class))).thenReturn(Set.of());
+
         ArgumentCaptor<Student> captor = ArgumentCaptor.forClass(Student.class);
         Student saved = student(12L, "Ana Mod", 22, "new@uni.es", false);
         when(repo.save(any(Student.class))).thenReturn(saved);
