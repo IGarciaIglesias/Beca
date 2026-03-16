@@ -11,12 +11,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,8 +39,6 @@ class StudentServiceTest {
     @BeforeEach
     void setUp() {
         service = new StudentService(repo, validator, cache);
-        // IMPORTANTE: NO stubbear validator aquí.
-        // Se stubbeará solo en los tests que realmente validen.
     }
 
     // ------------------------
@@ -256,8 +254,11 @@ class StudentServiceTest {
         Student existingDeleted = student(6L, "Ana", 20, "a@uni.es", true);
         when(repo.findById(6L)).thenReturn(Optional.of(existingDeleted));
 
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("deleted", null); // Map.of no admite null
+
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> service.patch(6L, Map.of("deleted", null)));
+                () -> service.patch(6L, fields));
         assertStatus(ex, HttpStatus.NOT_FOUND);
 
         verify(repo, never()).save(any());
@@ -268,6 +269,9 @@ class StudentServiceTest {
         Student existingDeleted = student(5L, "Ana", 20, "a@uni.es", true);
         when(repo.findById(5L)).thenReturn(Optional.of(existingDeleted));
 
+        // Tu implementación valida al restaurar si queda activo, así que lo stubbeamos
+        when(validator.validate(any(Student.class))).thenReturn(Set.of());
+
         Student saved = student(5L, "Ana", 20, "a@uni.es", false);
         when(repo.save(any(Student.class))).thenReturn(saved);
 
@@ -276,13 +280,15 @@ class StudentServiceTest {
         assertFalse(Boolean.TRUE.equals(result.getDeleted()));
         verify(cache).putById(saved);
         verify(cache).evictAllLists();
-        verify(validator, never()).validate(any(Student.class));
+        verify(validator).validate(any(Student.class));
     }
 
     @Test
     void patch_restoreOnly_allowsRestoringDeletedEntity_stringZero() {
         Student existingDeleted = student(8L, "Ana", 20, "a@uni.es", true);
         when(repo.findById(8L)).thenReturn(Optional.of(existingDeleted));
+
+        when(validator.validate(any(Student.class))).thenReturn(Set.of());
 
         Student saved = student(8L, "Ana", 20, "a@uni.es", false);
         when(repo.save(any(Student.class))).thenReturn(saved);
@@ -292,13 +298,15 @@ class StudentServiceTest {
         assertFalse(Boolean.TRUE.equals(result.getDeleted()));
         verify(cache).putById(saved);
         verify(cache).evictAllLists();
-        verify(validator, never()).validate(any(Student.class));
+        verify(validator).validate(any(Student.class));
     }
 
     @Test
     void patch_restoreOnly_allowsRestoringDeletedEntity_stringFalse() {
         Student existingDeleted = student(9L, "Ana", 20, "a@uni.es", true);
         when(repo.findById(9L)).thenReturn(Optional.of(existingDeleted));
+
+        when(validator.validate(any(Student.class))).thenReturn(Set.of());
 
         Student saved = student(9L, "Ana", 20, "a@uni.es", false);
         when(repo.save(any(Student.class))).thenReturn(saved);
@@ -308,7 +316,7 @@ class StudentServiceTest {
         assertFalse(Boolean.TRUE.equals(result.getDeleted()));
         verify(cache).putById(saved);
         verify(cache).evictAllLists();
-        verify(validator, never()).validate(any(Student.class));
+        verify(validator).validate(any(Student.class));
     }
 
     @Test
@@ -324,7 +332,6 @@ class StudentServiceTest {
         assertTrue(Boolean.TRUE.equals(result.getDeleted()));
         verify(cache).evictById(10L);
         verify(cache).evictAllLists();
-        verify(validator, never()).validate(any(Student.class));
     }
 
     @Test
@@ -340,7 +347,6 @@ class StudentServiceTest {
         assertTrue(Boolean.TRUE.equals(result.getDeleted()));
         verify(cache).evictById(7L);
         verify(cache).evictAllLists();
-        verify(validator, never()).validate(any(Student.class));
     }
 
     @Test
@@ -364,7 +370,10 @@ class StudentServiceTest {
         Student saved = student(12L, "Ana", null, "a@uni.es", false);
         when(repo.save(any(Student.class))).thenReturn(saved);
 
-        Student result = service.patch(12L, Map.of("age", null));
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("age", null); // Map.of no admite null
+
+        Student result = service.patch(12L, fields);
 
         assertNull(result.getAge());
         verify(cache).putById(saved);
@@ -380,7 +389,10 @@ class StudentServiceTest {
         Student saved = student(13L, null, 20, "a@uni.es", false);
         when(repo.save(any(Student.class))).thenReturn(saved);
 
-        Student result = service.patch(13L, Map.of("name", null));
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("name", null); // Map.of no admite null
+
+        Student result = service.patch(13L, fields);
 
         assertNull(result.getName());
         verify(cache).putById(saved);
@@ -396,7 +408,10 @@ class StudentServiceTest {
         Student saved = student(14L, "Ana", 20, null, false);
         when(repo.save(any(Student.class))).thenReturn(saved);
 
-        Student result = service.patch(14L, Map.of("correo", null));
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("correo", null); // Map.of no admite null
+
+        Student result = service.patch(14L, fields);
 
         assertNull(result.getCorreo());
         verify(cache).putById(saved);
@@ -414,7 +429,6 @@ class StudentServiceTest {
 
         Student result = service.patch(15L, Map.of("correo", "ana@uni.es"));
 
-        // Si el código trata equalsIgnoreCase como "no cambio", no debería consultar exists.
         verify(repo, never()).existsByCorreoIgnoreCase(anyString());
         verify(cache).putById(saved);
         verify(cache).evictAllLists();
