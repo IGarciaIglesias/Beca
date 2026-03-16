@@ -6,7 +6,6 @@ import com.hazelcast.map.IMap;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Objects;
 
 /**
  * Capa de caché explícita basada en Hazelcast IMap.
