@@ -35,7 +35,6 @@ class StudentServiceTest {
     @BeforeEach
     void setUp() {
         service = new StudentService(repo, validator, cache);
-        when(validator.validate(any(Student.class))).thenReturn(Set.of());
     }
 
     // ------------------------
