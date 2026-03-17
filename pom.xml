@@ -55,26 +55,18 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-
-		<!-- TEST base -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- NECESARIO para @WebMvcTest / @AutoConfigureMockMvc / MockMvc -->
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-test-autoconfigure</artifactId>
-		    <scope>test</scope>
-		</dependency>
 		
-		<!-- NECESARIO para @MockBean (y otras utilidades de test de Spring Boot) -->
+		<!-- TEST base (incluye spring-boot-test + spring-boot-test-autoconfigure + spring-test + junit + mockito) -->
 		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-test</artifactId>
-		    <scope>test</scope>
+		  <groupId>org.springframework.boot</groupId>
+		  <artifactId>spring-boot-starter-test</artifactId>
+		  <scope>test</scope>
+		  <exclusions>
+		    <exclusion>
+		      <groupId>org.junit.vintage</groupId>
+		      <artifactId>junit-vintage-engine</artifactId>
+		    </exclusion>
+		  </exclusions>
 		</dependency>
 
 		<!-- REST Assured (incluye JsonPath y XmlPath transitivos) -->
