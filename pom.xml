@@ -56,17 +56,10 @@
 			<scope>runtime</scope>
 		</dependency>
 		
-		<!-- TEST base (incluye spring-boot-test + spring-boot-test-autoconfigure + spring-test + junit + mockito) -->
 		<dependency>
 		  <groupId>org.springframework.boot</groupId>
 		  <artifactId>spring-boot-starter-test</artifactId>
 		  <scope>test</scope>
-		  <exclusions>
-		    <exclusion>
-		      <groupId>org.junit.vintage</groupId>
-		      <artifactId>junit-vintage-engine</artifactId>
-		    </exclusion>
-		  </exclusions>
 		</dependency>
 
 		<!-- REST Assured (incluye JsonPath y XmlPath transitivos) -->
