@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.3</version>
+		<version>3.2.5</version>
 		<relativePath/>
 	</parent>
 
@@ -55,12 +55,11 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-
-		<!-- TEST base -->
+		
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
+		  <groupId>org.springframework.boot</groupId>
+		  <artifactId>spring-boot-starter-test</artifactId>
+		  <scope>test</scope>
 		</dependency>
 
 		<!-- REST Assured (incluye JsonPath y XmlPath transitivos) -->
@@ -101,6 +100,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!-- NECESARIO para @WebMvcTest y @MockBean -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-test-autoconfigure</artifactId>
+		    <scope>test</scope>
 		</dependency>
 	</dependencies>
 
