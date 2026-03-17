@@ -63,6 +63,20 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- NECESARIO para @WebMvcTest / @AutoConfigureMockMvc / MockMvc -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-test-autoconfigure</artifactId>
+		    <scope>test</scope>
+		</dependency>
+		
+		<!-- NECESARIO para @MockBean (y otras utilidades de test de Spring Boot) -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-test</artifactId>
+		    <scope>test</scope>
+		</dependency>
+
 		<!-- REST Assured (incluye JsonPath y XmlPath transitivos) -->
 		<dependency>
 			<groupId>io.rest-assured</groupId>
