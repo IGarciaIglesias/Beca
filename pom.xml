@@ -102,6 +102,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+
+		<!-- NECESARIO para @WebMvcTest y @MockBean -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-test-autoconfigure</artifactId>
+		    <scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<!-- OPCIONAL: BOM para alinear Jetty 12 si alguna transitiva lo trae con otra versión -->
