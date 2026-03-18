@@ -2,6 +2,7 @@ package com.example.StudentsApplication.service;
 
 import com.example.StudentsApplication.cache.StudentCache;
 import com.example.StudentsApplication.model.Student;
+import com.example.StudentsApplication.model.Student.Role;
 import com.example.StudentsApplication.repo.StudentRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -22,10 +23,10 @@ public class StudentService {
     private final Validator validator;
     private final StudentCache cache;
 
-    // Mensajes (evita duplicación y mejora mantenibilidad)
     private static final String ERR_EMAIL_IN_USE = "El correo ya está en uso";
     private static final String ERR_AGE_INT = "age debe ser un entero";
     private static final String ERR_INVALID_DATA = "Datos inválidos";
+    private static final String ERR_INVALID_ROLE = "Rol inválido";
 
     public StudentService(StudentRepository repo, Validator validator, StudentCache cache) {
         this.repo = repo;
@@ -34,30 +35,37 @@ public class StudentService {
     }
 
     public void clearCache() {
-        cache.clearAll(); // vacía IMap "students" y "students_list"
+        cache.clearAll();
     }
 
+    /* =========================
+       CREATE
+       ========================= */
     public Student create(Student s) {
         if (repo.existsByCorreoIgnoreCase(s.getCorreo())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ERR_EMAIL_IN_USE);
         }
-        s.setDeleted(false); // asegurar no borrado al crear
-        Student saved = repo.save(s);
 
-        // actualizar caché: por id y listas
+        // ✅ default role si no viene
+        if (s.getRole() == null) {
+            s.setRole(Role.USER);
+        }
+
+        s.setDeleted(false);
+
+        Student saved = repo.save(s);
         cache.putById(saved);
         cache.evictAllLists();
         return saved;
     }
 
+    /* =========================
+       READ
+       ========================= */
     public Student getOr404(Long id) {
-        // 1) buscar en caché primero
         Student s = cache.getById(id);
         if (s == null) {
-            // 2) no está en caché -> cargar de BBDD
             s = repo.findById(id).orElseThrow(() -> notFound(id));
-
-            // 3) si no está borrado -> poner en caché
             if (!Boolean.TRUE.equals(s.getDeleted())) {
                 cache.putById(s);
             }
@@ -73,16 +81,18 @@ public class StudentService {
     @Transactional(readOnly = true)
     public List<Student> listActive() {
         var cached = cache.getAllActiveCached();
-        if (cached != null) {
-            return List.copyOf(cached);
-        }
+        if (cached != null) return List.copyOf(cached);
+
         var list = repo.findByDeletedFalse();
         cache.putAllActive(list);
         return list;
     }
 
+    /* =========================
+       PUT (replace)
+       ========================= */
     public Student replace(Long id, Student incoming) {
-        Student existing = getOr404(id); // ya 404 si está borrado
+        Student existing = getOr404(id);
 
         if (!equalsIgnoreCaseSafe(existing.getCorreo(), incoming.getCorreo())
                 && repo.existsByCorreoIgnoreCase(incoming.getCorreo())) {
@@ -92,7 +102,11 @@ public class StudentService {
         existing.setName(incoming.getName());
         existing.setAge(incoming.getAge());
         existing.setCorreo(incoming.getCorreo());
-        // mantener su estado deleted
+
+        // ✅ Si no viene role en PUT, mantenemos el actual (para no romper clientes)
+        if (incoming.getRole() != null) {
+            existing.setRole(incoming.getRole());
+        }
 
         Student saved = repo.save(existing);
         cache.putById(saved);
@@ -100,43 +114,39 @@ public class StudentService {
         return saved;
     }
 
-    /**
-     * PATCH parcial con soporte de restauración (deleted=false como único campo).
-     * Refactorizado para reducir Cognitive Complexity (Sonar).
-     */
+    /* =========================
+       PATCH
+       ========================= */
     public Student patch(Long id, Map<String, Object> fields) {
 
-        // 1) Cargar sin getOr404 para poder restaurar borrados lógicos
         Student existing = repo.findById(id).orElseThrow(() -> notFound(id));
 
-        // 2) Parsear 'deleted' (si viene)
         Boolean requestedDeleted = parseDeleted(fields);
-
-        // 3) ¿Es una restauración “pura”? (solo deleted=false)
         boolean restoreOnly = isRestoreOnly(fields, requestedDeleted);
 
-        // 4) Si está borrado y NO es restauración -> 404
         if (Boolean.TRUE.equals(existing.getDeleted()) && !restoreOnly) {
             throw notFound(id);
         }
 
-        // 5) Aplicar deleted primero (si viene)
         applyDeleted(existing, requestedDeleted);
 
-        // Si queda borrado después de aplicar deleted, no permitimos tocar nada más
+        // si sigue activo, aplicar cambios
         if (!Boolean.TRUE.equals(existing.getDeleted())) {
             applyName(existing, fields);
             applyAge(existing, fields);
             applyCorreo(existing, fields);
+            applyRole(existing, fields);     // ✅ role en PATCH
             validateOr400(existing);
         }
 
-        // 6) Guardar y sincronizar caché
         Student saved = repo.save(existing);
         syncCacheAfterSave(saved);
         return saved;
     }
 
+    /* =========================
+       DELETE
+       ========================= */
     public void delete(Long id, boolean soft) {
         Student s = repo.findById(id).orElseThrow(() -> notFound(id));
 
@@ -149,51 +159,33 @@ public class StudentService {
             repo.deleteById(id);
         }
 
-        // coherencia de caché
         cache.evictById(id);
         cache.evictAllLists();
     }
 
-    // Conserva tu delete(id) antiguo para compatibilidad si lo llama el controller actual:
     public void delete(Long id) {
-        delete(id, true); // por defecto soft
+        delete(id, true);
     }
 
-    // =========================
-    // Helpers (refactor Sonar)
-    // =========================
+    /* =========================
+       HELPERS
+       ========================= */
 
     private ResponseStatusException notFound(Long id) {
-        return new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Estudiante " + id + " no encontrado"
-        );
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Estudiante " + id + " no encontrado");
     }
 
-    /**
-     * Devuelve:
-     *  - null si no viene "deleted" o viene null
-     *  - true/false si viene boolean o string/num interpretable
-     * Mantiene una semántica compatible con tu implementación original:
-     *  - "false"/"0"/Boolean.FALSE => false
-     *  - "true"/"1"/Boolean.TRUE  => true
-     *  - valores raros => true
-     */
     private Boolean parseDeleted(Map<String, Object> fields) {
         if (!fields.containsKey("deleted")) return null;
-
         Object v = fields.get("deleted");
         if (v == null) return null;
 
-        if (v instanceof Boolean b) {
-            return b;
-        }
+        if (v instanceof Boolean b) return b;
 
         String s = v.toString().trim();
         if ("false".equalsIgnoreCase(s) || "0".equals(s)) return false;
         if ("true".equalsIgnoreCase(s) || "1".equals(s)) return true;
 
-        // compatible con tu lógica previa: si no es "false", tratamos como true
         return true;
     }
 
@@ -209,7 +201,6 @@ public class StudentService {
 
     private void applyName(Student existing, Map<String, Object> fields) {
         if (!fields.containsKey("name")) return;
-
         Object v = fields.get("name");
         existing.setName(v == null ? null : v.toString());
     }
@@ -236,16 +227,30 @@ public class StudentService {
         Object v = fields.get("correo");
         String nuevoCorreo = (v == null ? null : v.toString());
 
-        // Solo validamos conflicto si realmente cambia el correo
-        String current = existing.getCorreo();
-        boolean changed = (nuevoCorreo != null)
-                && (current == null || !current.equalsIgnoreCase(nuevoCorreo));
-
+        boolean changed = nuevoCorreo != null && !equalsIgnoreCaseSafe(existing.getCorreo(), nuevoCorreo);
         if (changed && repo.existsByCorreoIgnoreCase(nuevoCorreo)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ERR_EMAIL_IN_USE);
         }
 
         existing.setCorreo(nuevoCorreo);
+    }
+
+    /**
+     * ✅ ROLE en PATCH:
+     * Espera "role": "ADMIN" o "USER"
+     */
+    private void applyRole(Student existing, Map<String, Object> fields) {
+        if (!fields.containsKey("role")) return;
+
+        Object v = fields.get("role");
+        if (v == null) return;
+
+        String raw = v.toString().trim().toUpperCase();
+        try {
+            existing.setRole(Role.valueOf(raw));
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ERR_INVALID_ROLE);
+        }
     }
 
     private void validateOr400(Student existing) {

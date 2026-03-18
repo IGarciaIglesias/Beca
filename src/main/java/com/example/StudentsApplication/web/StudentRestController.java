@@ -6,6 +6,8 @@ import com.example.StudentsApplication.service.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -69,5 +71,24 @@ public class StudentRestController {
                 "status", "ok",
                 "cleared", java.util.List.of("students", "students_list")
         );
+    }
+
+    @RestController
+    @RequestMapping("/auth")
+    public class AuthController {
+
+        private final StudentRepository repo;
+
+        public AuthController(StudentRepository repo) {
+            this.repo = repo;
+        }
+
+        @PostMapping("/login")
+        public Student login(@RequestBody Map<String, String> body) {
+            String correo = body.get("correo");
+
+            return repo.findByCorreoAndDeletedFalse(correo)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        }
     }
 }
