@@ -12,7 +12,7 @@ form {
 
 /* ===== Grupos ===== */
 form > div {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 /* ===== Labels ===== */
@@ -38,6 +38,13 @@ textarea {
   box-sizing: border-box;
 }
 
+/* FORZAMOS VISIBILIDAD DEL SELECT */
+select {
+  display: block;
+  min-height: 38px;
+}
+
+/* ===== Focus ===== */
 input:focus,
 select:focus,
 textarea:focus {
@@ -46,29 +53,19 @@ textarea:focus {
   box-shadow: 0 0 0 1px #2563eb;
 }
 
-/* ===== Textarea ===== */
-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
 /* ===== Estados Angular ===== */
 input.ng-invalid.ng-touched,
-select.ng-invalid.ng-touched,
-textarea.ng-invalid.ng-touched {
+select.ng-invalid.ng-touched {
   border-color: #dc2626;
 }
 
 input.ng-valid.ng-touched,
-select.ng-valid.ng-touched,
-textarea.ng-valid.ng-touched {
+select.ng-valid.ng-touched {
   border-color: #16a34a;
 }
 
-/* ===== Mensajes de error ===== */
-form small,
+/* ===== Errores ===== */
 .form-error {
-  display: block;
   margin-top: 4px;
   font-size: 0.75rem;
   color: #dc2626;
@@ -79,7 +76,7 @@ form button {
   padding: 8px 14px;
   font-size: 0.9rem;
   border-radius: 6px;
-  border: 1px solid transparent;
+  border: none;
   background: #2563eb;
   color: white;
   cursor: pointer;
@@ -90,17 +87,17 @@ form button:hover {
 }
 
 /* Botón secundario */
-form a,
-form button[type="button"] {
+form a {
+  margin-left: 8px;
+  padding: 8px 14px;
+  border-radius: 6px;
   background: #f3f4f6;
   color: #111827;
-  border-color: #d1d5db;
+  border: 1px solid #d1d5db;
   text-decoration: none;
-  margin-left: 8px;
 }
 
-form a:hover,
-form button[type="button"]:hover {
+form a:hover {
   background: #e5e7eb;
 }
 

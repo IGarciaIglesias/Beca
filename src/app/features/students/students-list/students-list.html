@@ -12,7 +12,7 @@
 
   <table *ngIf="!vm.loading && vm.students.length > 0">
     <thead>
-      <tr><th>ID</th><th>Name</th><th>Age</th><th>Correo</th><th>Acciones</th></tr>
+      <tr><th>ID</th><th>Name</th><th>Age</th><th>Correo</th><th>Rol</th><th>Acciones</th></tr>
     </thead>
     <tbody>
       <tr *ngFor="let s of vm.students">
@@ -20,6 +20,7 @@
         <td><a [routerLink]="['/students', s.id]">{{ s.name }}</a></td>
         <td>{{ s.age }}</td>
         <td>{{ s.correo }}</td>
+        <td>{{ s.role }}</td>
         <td style="display:flex; gap:8px;">
           <a [routerLink]="['/students', s.id, 'edit']">Edit</a>
           <button (click)="deleteSoft(s.id!)">Soft delete</button>

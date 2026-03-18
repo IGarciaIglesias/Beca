@@ -1,20 +1,14 @@
+// src/app/core/api/student.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface Student {
-  id?: number;
-  name: string;
-  age: number;
-  correo: string;
-  deleted?: boolean;
-}
+import { Student } from './student.model';
 
 @Injectable({ providedIn: 'root' })
 export class StudentService {
-  private base = '/api/students'; // IMPORTANTE: proxy => http://localhost:8080/students
-
-  //private base = 'http://localhost:8080/students';
+  private base = '/api/students'; // proxy => http://localhost:8080/students
 
   constructor(private http: HttpClient) {}
 

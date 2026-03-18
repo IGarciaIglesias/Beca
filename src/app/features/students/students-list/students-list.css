@@ -14,15 +14,15 @@ h2 {
   font-weight: 600;
 }
 
-/* ===== Barra superior (div inline styles) ===== */
-h2 + div {
+/* ===== Barra superior ===== */
+.actions-bar {
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
 }
 
-h2 + div a,
-h2 + div button {
+.actions-bar a,
+.actions-bar button {
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -33,31 +33,31 @@ h2 + div button {
   text-decoration: none;
 }
 
-h2 + div a {
+.actions-bar a {
   background: #2563eb;
   color: white;
   border-color: transparent;
 }
 
-h2 + div a:hover {
+.actions-bar a:hover {
   background: #1d4ed8;
 }
 
-h2 + div button:hover {
+.actions-bar button:hover {
   background: #e5e7eb;
 }
 
 /* ===== Estados ===== */
-div[ng-reflect-ng-if][style*="color:red"],
-div[style*="color:red"] {
-  margin-bottom: 12px;
-  font-weight: 500;
-}
-
-ng-container > div:first-child {
+.loading {
   font-style: italic;
   color: #6b7280;
   margin-bottom: 8px;
+}
+
+.error {
+  color: #dc2626;
+  margin-bottom: 12px;
+  font-weight: 500;
 }
 
 /* ===== Tabla ===== */
@@ -70,7 +70,6 @@ table {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* Cabecera */
 thead {
   background: #f3f4f6;
 }
@@ -85,18 +84,16 @@ th {
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* Celdas */
 td {
   padding: 10px 12px;
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* Hover fila */
 tbody tr:hover {
   background: #f9fafb;
 }
 
-/* Links dentro de tabla */
+/* Links */
 table a {
   color: #2563eb;
   text-decoration: none;
@@ -106,14 +103,14 @@ table a:hover {
   text-decoration: underline;
 }
 
-/* ===== Acciones (td con flex inline) ===== */
-td[style*="display:flex"] {
-  display: flex !important;
+/* ===== Acciones ===== */
+.actions {
+  display: flex;
   gap: 8px;
 }
 
-td[style*="display:flex"] a,
-td[style*="display:flex"] button {
+.actions a,
+.actions button {
   padding: 4px 8px;
   font-size: 0.8rem;
   border-radius: 4px;
@@ -123,29 +120,29 @@ td[style*="display:flex"] button {
 }
 
 /* Soft delete */
-td[style*="display:flex"] button:first-of-type {
+.actions button.soft {
   background: #fef3c7;
   border-color: #fde68a;
   color: #92400e;
 }
 
-td[style*="display:flex"] button:first-of-type:hover {
+.actions button.soft:hover {
   background: #fde68a;
 }
 
 /* Hard delete */
-td[style*="display:flex"] button:last-of-type {
+.actions button.hard {
   background: #fee2e2;
   border-color: #fecaca;
   color: #b91c1c;
 }
 
-td[style*="display:flex"] button:last-of-type:hover {
+.actions button.hard:hover {
   background: #fecaca;
 }
 
 /* ===== Estado vacío ===== */
-ng-container > div:last-child {
+.empty {
   margin-top: 16px;
   font-style: italic;
   color: #6b7280;
