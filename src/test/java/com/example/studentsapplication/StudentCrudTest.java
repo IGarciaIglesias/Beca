@@ -26,7 +26,7 @@ public class StudentCrudTest {
 
     @Test
     void crear_student() {
-        Student s = new Student("Ana", 20, "ana@uni.es");
+        Student s = new Student("Ana", 20, "ana@uni.es", Student.Role.USER);
         repo.save(s);
 
         assertNotNull(s.getId(), "El ID debe generarse automáticamente");
@@ -35,7 +35,7 @@ public class StudentCrudTest {
 
     @Test
     void leer_por_id() {
-        Student s = repo.save(new Student("Ana", 20, "ana@uni.es"));
+        Student s = repo.save(new Student("Ana", 20, "ana@uni.es", Student.Role.USER));
         Optional<Student> encontrado = repo.findById(s.getId());
 
         assertTrue(encontrado.isPresent());
@@ -44,8 +44,8 @@ public class StudentCrudTest {
 
     @Test
     void listar_students() {
-        repo.save(new Student("Ana", 20, "ana@uni.es"));
-        repo.save(new Student("Luis", 22, "luis@uni.es"));
+        repo.save(new Student("Ana", 20, "ana@uni.es", Student.Role.USER));
+        repo.save(new Student("Luis", 22, "luis@uni.es", Student.Role.USER));
 
         List<Student> lista = repo.findAll();
 
@@ -54,7 +54,7 @@ public class StudentCrudTest {
 
     @Test
     void actualizar_student() {
-        Student s = repo.save(new Student("Ana", 20, "ana@uni.es"));
+        Student s = repo.save(new Student("Ana", 20, "ana@uni.es", Student.Role.USER));
 
         // actualizamos
         s.setName("Ana Gómez");
@@ -69,7 +69,7 @@ public class StudentCrudTest {
 
     @Test
     void borrar_student() {
-        Student s = repo.save(new Student("Ana", 20, "ana@uni.es"));
+        Student s = repo.save(new Student("Ana", 20, "ana@uni.es", Student.Role.USER));
 
         repo.deleteById(s.getId());
 
@@ -80,7 +80,7 @@ public class StudentCrudTest {
     @Test
     void soft_delete_oculta_en_listado_y_get() {
         // Crea y guarda uno
-        Student s = new Student("Ana", 20, "ana@uni.es");
+        Student s = new Student("Ana", 20, "ana@uni.es", Student.Role.USER);
         s.setDeleted(false);
         // simula repo/save...
         // marca como borrado
