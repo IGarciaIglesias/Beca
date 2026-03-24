@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Test MVC (sin levantar servidor real) para subir coverage de:
  * - StudentRestController
  * - RestExceptionHandler (validación 400)
+ *
  */
 @WebMvcTest(controllers = StudentRestController.class)
 @Import(RestExceptionHandler.class)
