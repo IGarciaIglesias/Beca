@@ -62,8 +62,8 @@ public class Student {
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
 
-    public Role getRole() { return role; }                 // ✅ devuelve Role
-    public void setRole(Role role) { this.role = role; }   // ✅ recibe Role
+    public Role getRole() { return role; }                 // devuelve Role
+    public void setRole(Role role) { this.role = role; }   // recibe Role
 
     public Boolean getDeleted() { return deleted; }
     public void setDeleted(Boolean deleted) { this.deleted = deleted; }

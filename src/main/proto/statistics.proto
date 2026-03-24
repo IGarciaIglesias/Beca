@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.example.StudentsApplication.protobuf";
+option java_outer_classname = "StatisticsProto";
+
+message StudentData {
+  int64 id = 1;
+  int32 age = 2;
+  string role = 3;
+}
+
+message StatisticsRequest {
+  repeated StudentData students = 1;
+}
+
+message StatisticsResponse {
+  int32 totalStudents = 1;
+  double averageAge = 2;
+  int32 minAge = 3;
+  int32 maxAge = 4;
+  int32 adminCount = 5;
+  int32 userCount = 6;
+}

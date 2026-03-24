@@ -20,11 +20,16 @@
 
 	<properties>
 		<java.version>17</java.version>
+
 		<maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
-		<!-- WireMock 3.x -->
+
 		<wiremock.version>3.5.4</wiremock.version>
-		<!-- Versión de Rest Assured (Java 17+) -->
 		<restassured.version>6.0.0</restassured.version>
+
+		<!-- Protobuf -->
+		<protobuf.version>3.25.3</protobuf.version>
+
+		<!-- Sonar -->
 		<sonar.organization>igarciaiglesias-1</sonar.organization>
 		<sonar.projectKey>igarciaiglesias_sonar1</sonar.projectKey>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -34,7 +39,8 @@
 	</properties>
 
 	<dependencies>
-		<!-- MAIN -->
+
+		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -56,18 +62,43 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!-- DB -->
+		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Hazelcast -->
 		<dependency>
-		  <groupId>org.springframework.boot</groupId>
-		  <artifactId>spring-boot-starter-test</artifactId>
-		  <scope>test</scope>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+			<version>5.5.0</version>
 		</dependency>
 
-		<!-- REST Assured (incluye JsonPath y XmlPath transitivos) -->
+		<!-- ✅ PROTOBUF RUNTIME (CLAVE) -->
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>${protobuf.version}</version>
+		</dependency>
+
+		<!-- Tests -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>io.rest-assured</groupId>
 			<artifactId>rest-assured</artifactId>
@@ -75,13 +106,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- Jackson para tests (ObjectMapper / JsonNode) -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-
-		<!-- WireMock 3.x con backend Jetty 12 (Java 17). No mezclar con 'org.wiremock:wiremock' -->
 		<dependency>
 			<groupId>org.wiremock</groupId>
 			<artifactId>wiremock-jetty12</artifactId>
@@ -89,46 +113,26 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- Spring Cache -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-cache</artifactId>
+			<artifactId>spring-boot-test-autoconfigure</artifactId>
+			<scope>test</scope>
 		</dependency>
 
-		<!-- Hazelcast (núcleo) -->
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast</artifactId>
-			<version>5.5.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-
-		<!-- NECESARIO para @WebMvcTest y @MockBean -->
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-test-autoconfigure</artifactId>
-		    <scope>test</scope>
-		</dependency>
 	</dependencies>
 
-	<!-- OPCIONAL: BOM para alinear Jetty 12 si alguna transitiva lo trae con otra versión -->
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-bom</artifactId>
-				<version>12.0.9</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<build>
+		<extensions>
+			<!-- ✅ NECESARIO para detectar OS (Windows/Linux/Mac) -->
+			<extension>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.7.0</version>
+			</extension>
+		</extensions>
+
 		<plugins>
+
 			<!-- Java 17 -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -138,7 +142,26 @@
 				</configuration>
 			</plugin>
 
-			<!-- Surefire (JUnit 5) -->
+			<!-- ✅ PROTOBUF COMPILATION -->
+			<plugin>
+				<groupId>org.xolstice.maven.plugins</groupId>
+				<artifactId>protobuf-maven-plugin</artifactId>
+				<version>0.6.1</version>
+				<configuration>
+					<protocArtifact>
+						com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+					</protocArtifact>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Surefire -->
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven.surefire.plugin.version}</version>
@@ -150,14 +173,13 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
+			<!-- JaCoCo -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.14</version>
-
 				<executions>
 
-					<!-- Engancha el agente y define el exec -->
 					<execution>
 						<id>prepare-agent</id>
 						<goals>
@@ -168,7 +190,6 @@
 						</configuration>
 					</execution>
 
-					<!-- Fuerza la generación del XML -->
 					<execution>
 						<id>report</id>
 						<phase>verify</phase>

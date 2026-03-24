@@ -46,7 +46,7 @@ public class StudentService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ERR_EMAIL_IN_USE);
         }
 
-        // ✅ default role si no viene
+        // default role si no viene
         if (s.getRole() == null) {
             s.setRole(Role.USER);
         }
@@ -103,7 +103,7 @@ public class StudentService {
         existing.setAge(incoming.getAge());
         existing.setCorreo(incoming.getCorreo());
 
-        // ✅ Si no viene role en PUT, mantenemos el actual (para no romper clientes)
+        // Si no viene role en PUT, mantenemos el actual (para no romper clientes)
         if (incoming.getRole() != null) {
             existing.setRole(incoming.getRole());
         }
@@ -135,7 +135,7 @@ public class StudentService {
             applyName(existing, fields);
             applyAge(existing, fields);
             applyCorreo(existing, fields);
-            applyRole(existing, fields);     // ✅ role en PATCH
+            applyRole(existing, fields);     // role en PATCH
             validateOr400(existing);
         }
 
@@ -236,7 +236,7 @@ public class StudentService {
     }
 
     /**
-     * ✅ ROLE en PATCH:
+     * ROLE en PATCH:
      * Espera "role": "ADMIN" o "USER"
      */
     private void applyRole(Student existing, Map<String, Object> fields) {
