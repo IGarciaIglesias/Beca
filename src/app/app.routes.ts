@@ -5,6 +5,8 @@ import { StudentFormComponent } from './features/students/student-form/student-f
 import { StudentDetailComponent } from './features/students/student-detail/student-detail';
 import { LoginComponent } from './features/auth/login/login.component';
 import { WelcomeComponent } from './features/welcome/welcome.component';
+import { StatisticsComponent } from './features/statistics/statistics.component';
+
 import { NoAuthGuard } from './core/auth/no-auth.guard';
 import { AuthGuard } from './core/auth/auth.guard';
 import { AdminGuard } from './core/auth/admin.guard';
@@ -17,7 +19,10 @@ export const routes: Routes = [
 
   { path: 'welcome', component: WelcomeComponent, canActivate: [AuthGuard] },
 
-  // SOLO ADMIN
+  // ✅ ESTADÍSTICAS (solo usuarios autenticados)
+  { path: 'statistics', component: StatisticsComponent, canActivate: [AuthGuard] },
+
+  // ✅ SOLO ADMIN
   { path: 'students', component: StudentsListComponent, canActivate: [AuthGuard, AdminGuard] },
   { path: 'students/new', component: StudentFormComponent, canActivate: [AuthGuard, AdminGuard] },
   { path: 'students/:id', component: StudentDetailComponent, canActivate: [AuthGuard, AdminGuard] },

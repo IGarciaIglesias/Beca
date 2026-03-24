@@ -1,0 +1,16 @@
+<div *ngIf="stats$ | async as stats; else loading">
+  <h2>Estadísticas de estudiantes</h2>
+
+  <ul>
+    <li>Total alumnos: {{ stats.totalStudents }}</li>
+    <li>Edad media: {{ stats.averageAge | number:'1.0-2' }}</li>
+    <li>Edad mínima: {{ stats.minAge }}</li>
+    <li>Edad máxima: {{ stats.maxAge }}</li>
+    <li>Admins: {{ stats.adminCount }}</li>
+    <li>Users: {{ stats.userCount }}</li>
+  </ul>
+</div>
+
+<ng-template #loading>
+  <p>Cargando estadísticas...</p>
+</ng-template>
