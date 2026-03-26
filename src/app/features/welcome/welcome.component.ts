@@ -1,13 +1,22 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  standalone: true,
   selector: 'app-welcome',
-  imports: [CommonModule],
-  template: `
-    <h2>Bienvenido</h2>
-    <p>Has iniciado sesión como usuario.</p>
-  `
+  standalone: true,
+  imports: [CommonModule], 
+  templateUrl: './welcome.component.html'
 })
-export class WelcomeComponent {}
+export class WelcomeComponent {
+
+  constructor(
+    public auth: AuthService,
+    private router: Router
+  ) {}
+
+  go(path: string) {
+    this.router.navigate([path]);
+  }
+}

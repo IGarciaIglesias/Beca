@@ -4,7 +4,7 @@ import { Router, ActivatedRoute, convertToParamMap } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 
-import { StudentFormComponent } from './student-form';
+import { StudentFormComponent } from './users-form';
 import { StudentService } from '../../../core/api/student.service';
 
 describe('StudentFormComponent', () => {

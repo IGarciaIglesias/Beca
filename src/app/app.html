@@ -13,10 +13,12 @@
   </div>
 
   <div style="display: flex; gap: 12px; align-items: center;">
-    <span *ngIf="auth.isLoggedIn()">
-      {{ auth.getUser()?.name }} ({{ auth.getUser()?.role }})
+    <!-- Usuario logueado -->
+    <span *ngIf="auth.user as user">
+      {{ user.correo }} ({{ user.role }})
     </span>
 
+    <!-- Botón logout -->
     <button *ngIf="auth.isLoggedIn()" (click)="auth.logout()">
       Cerrar sesión
     </button>

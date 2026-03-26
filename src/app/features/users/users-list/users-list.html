@@ -1,0 +1,58 @@
+<h2>Usuarios</h2>
+
+<div style="display:flex; gap:12px; margin-bottom: 12px;">
+  <a
+    *ngIf="auth.hasRole('ADMIN')"
+    routerLink="/users/new"
+  >
+    Nuevo
+  </a>
+
+  <button (click)="reload()">Recargar</button>
+</div>
+
+<ng-container *ngIf="vm$ | async as vm">
+  <div *ngIf="vm.loading">Cargando...</div>
+  <div *ngIf="vm.error" style="color:red">{{ vm.error }}</div>
+
+  <table *ngIf="!vm.loading && vm.users.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Correo</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let u of vm.users">
+        <td>{{ u.id }}</td>
+        <td>{{ u.correo }}</td>
+        <td>{{ u.role }}</td>
+
+        <td style="display:flex; gap:8px;">
+          <a [routerLink]="['/users', u.id]">Ver</a>
+
+          <a
+            *ngIf="auth.hasRole('ADMIN')"
+            [routerLink]="['/users', u.id, 'edit']"
+          >
+            Editar
+          </a>
+
+          <button
+            *ngIf="auth.hasRole('ADMIN')"
+            (click)="delete(u.id!)"
+          >
+            Borrar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!vm.loading && vm.users.length === 0">
+    No hay usuarios.
+  </div>
+</ng-container>

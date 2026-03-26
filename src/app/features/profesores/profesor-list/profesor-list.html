@@ -1,0 +1,56 @@
+<h2>Profesores</h2>
+
+<div style="display:flex; gap:12px; margin-bottom: 12px;">
+  <a
+    *ngIf="auth.hasRole('ADMIN', 'GESTOR')"
+    routerLink="/profesores/new"
+  >
+    Nuevo
+  </a>
+
+  <button (click)="reload()">Recargar</button>
+</div>
+
+<ng-container *ngIf="vm$ | async as vm">
+  <div *ngIf="vm.loading">Cargando...</div>
+  <div *ngIf="vm.error" style="color:red">{{ vm.error }}</div>
+
+  <table *ngIf="!vm.loading && vm.profesores.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Correo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let p of vm.profesores">
+        <td>{{ p.id }}</td>
+        <td>{{ p.correo }}</td>
+
+        <td style="display:flex; gap:8px;">
+          <a [routerLink]="['/profesores', p.id]">Ver</a>
+
+          <a
+            *ngIf="auth.hasRole('ADMIN', 'GESTOR')"
+            [routerLink]="['/profesores', p.id, 'edit']"
+          >
+            Editar
+          </a>
+
+          <button
+            *ngIf="auth.hasRole('ADMIN', 'GESTOR')"
+            (click)="delete(p.id!)"
+          >
+            Borrar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!vm.loading && vm.profesores.length === 0">
+    No hay profesores.
+  </div>
+</ng-container>

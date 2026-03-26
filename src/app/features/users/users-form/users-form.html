@@ -1,0 +1,32 @@
+<h2 *ngIf="!id">Nuevo usuario</h2>
+<h2 *ngIf="id">Editar usuario #{{ id }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+
+  <div>
+    <label>Correo</label><br />
+    <input formControlName="correo" />
+
+    <div style="color:red"
+         *ngIf="form.get('correo')?.touched && form.get('correo')?.invalid">
+      Correo obligatorio con formato válido
+    </div>
+
+    <div style="color:red" *ngIf="serverErrors['correo']">
+      {{ serverErrors['correo'] }}
+    </div>
+  </div>
+
+  <div>
+    <label>Rol</label><br />
+    <select formControlName="role">
+      <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+    </select>
+  </div>
+
+  <button type="submit" [disabled]="saving">
+    {{ saving ? 'Guardando...' : 'Guardar' }}
+  </button>
+
+  <a routerLink="/users" style="margin-left:12px;">Cancelar</a>
+</form>

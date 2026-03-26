@@ -1,0 +1,15 @@
+<ng-container *ngIf="vm$ | async as vm">
+  <div *ngIf="vm.loading">Cargando...</div>
+  <div *ngIf="vm.error" style="color:red">{{ vm.error }}</div>
+
+  <div *ngIf="!vm.loading && vm.profesor">
+    <h2>Profesor #{{ vm.profesor.id }}</h2>
+
+    <p><b>Correo:</b> {{ vm.profesor.correo }}</p>
+
+    <div style="display:flex; gap:10px;">
+      <a [routerLink]="['/profesores', vm.profesor.id, 'edit']">Editar</a>
+      <a routerLink="/profesores">Volver</a>
+    </div>
+  </div>
+</ng-container>

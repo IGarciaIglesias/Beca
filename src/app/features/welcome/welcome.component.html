@@ -1,0 +1,42 @@
+<h2>¿Qué quieres gestionar?</h2>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 24px;">
+
+  <!-- STUDENTS -->
+  <div
+    style="border: 1px solid #e5e7eb; padding: 16px; border-radius: 8px; cursor: pointer;"
+    (click)="go('/students')"
+  >
+    <h3>Students</h3>
+    <p>Gestionar alumnos</p>
+  </div>
+
+  <!-- PROFESSORS (cuando lo tengas) -->
+  <div
+    style="border: 1px solid #e5e7eb; padding: 16px; border-radius: 8px; cursor: pointer;"
+    (click)="go('/profesores')"
+  >
+    <h3>Profesores</h3>
+    <p>Gestionar profesores</p>
+  </div>
+
+  <!-- USERS (solo ADMIN, futuro) -->
+  <div
+    *ngIf="auth.hasRole('ADMIN')"
+    style="border: 1px solid #e5e7eb; padding: 16px; border-radius: 8px; cursor: pointer;"
+    (click)="go('/users')"
+  >
+    <h3>Usuarios</h3>
+    <p>Gestionar usuarios del sistema</p>
+  </div>
+
+  <!-- STATISTICS -->
+  <div
+    style="border: 1px solid #e5e7eb; padding: 16px; border-radius: 8px; cursor: pointer;"
+    (click)="go('/statistics')"
+  >
+    <h3>Estadísticas</h3>
+    <p>Ver estadísticas generales</p>
+  </div>
+
+</div>

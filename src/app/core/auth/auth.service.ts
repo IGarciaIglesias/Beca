@@ -1,49 +1,51 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { Student } from '../api/student.model';
-
-const STORAGE_KEY = 'auth_user';
+import { BehaviorSubject, tap } from 'rxjs';
+import { User } from '../api/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private currentUser?: Student;
+  private readonly STORAGE_KEY = 'auth_user';
 
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      this.currentUser = JSON.parse(stored);
-    }
-  }
+  private userSubject = new BehaviorSubject<User | null>(this.loadUser());
+  user$ = this.userSubject.asObservable();
+
+  constructor(private http: HttpClient) {}
 
   login(correo: string) {
-    return this.http.post<Student>('/api/auth/login', { correo });
-  }
-
-  saveSession(user: Student) {
-    this.currentUser = user;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    return this.http.post<User>('http://localhost:8080/auth/login', { correo })
+      .pipe(
+        tap(user => {
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
+          this.userSubject.next(user);
+        })
+      );
   }
 
   logout() {
-    this.currentUser = undefined;
-    localStorage.removeItem(STORAGE_KEY);
-    this.router.navigate(['/login']);
+    localStorage.removeItem(this.STORAGE_KEY);
+    this.userSubject.next(null);
+  }
+
+  get user(): User | null {
+    return this.userSubject.value;
   }
 
   isLoggedIn(): boolean {
-    return !!this.currentUser;
+    return !!this.user;
   }
 
   isAdmin(): boolean {
-    return this.currentUser?.role === 'ADMIN';
+    return this.user?.role === 'ADMIN';
   }
 
-  getUser(): Student | undefined {
-    return this.currentUser;
+  hasRole(...roles: string[]): boolean {
+    return !!this.user && roles.includes(this.user.role);
+  }
+
+  private loadUser(): User | null {
+    const raw = localStorage.getItem(this.STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
   }
 }

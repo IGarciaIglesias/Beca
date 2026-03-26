@@ -6,8 +6,8 @@ import { AuthService } from './core/auth/auth.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet], // ✅ necesario para *ngIf y router-outlet
-  templateUrl: './app.html'              // ✅ ESTE archivo
+  imports: [CommonModule, RouterOutlet], 
+  templateUrl: './app.html'              
 })
 export class AppComponent {
   constructor(public auth: AuthService) {}

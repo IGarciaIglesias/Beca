@@ -35,8 +35,7 @@ export class LoginComponent {
 
     this.auth.login(correo).subscribe({
       next: user => {
-        this.auth.saveSession(user);
-        this.router.navigate(['/students']);
+        this.router.navigate(['/welcome']);
       },
       error: () => {
         this.error = 'Correo no válido';
