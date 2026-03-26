@@ -71,23 +71,4 @@ public class StudentRestController {
                 "cleared", java.util.List.of("students", "students_list")
         );
     }
-
-    @RestController
-    @RequestMapping("/auth")
-    public class AuthController {
-
-        private final StudentRepository repo;
-
-        public AuthController(StudentRepository repo) {
-            this.repo = repo;
-        }
-
-        @PostMapping("/login")
-        public Student login(@RequestBody Map<String, String> body) {
-            String correo = body.get("correo");
-
-            return repo.findByCorreoAndDeletedFalse(correo)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        }
-    }
 }

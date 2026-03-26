@@ -1,6 +1,7 @@
 package com.example.studentsapplication.repo;
 
 import com.example.studentsapplication.model.Student;
+import com.example.studentsapplication.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -18,6 +19,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     // Soft delete helpers:
     List<Student> findByDeletedFalse();               // listar solo no borrados
     boolean existsByIdAndDeletedFalse(Long id);       // existencia solo si no borrado
-    Optional<Student> findByCorreoAndDeletedFalse(String correo);
 }
 
