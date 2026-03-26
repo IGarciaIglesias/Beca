@@ -1,6 +1,8 @@
 package com.example.studentsapplication.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 @Entity
 @Table(name = "users")
@@ -13,12 +15,14 @@ public class User {
     @Column(nullable = false, length = 50)
     private String correo;
 
+    @Column(name = "passwordhash", nullable = true)
+    private String passwordHash;
+
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(nullable = false)
     private UserRole role;
 
-    @Column(nullable = false)
-    private String passwordHash;
 
     // ===== getters =====
 
