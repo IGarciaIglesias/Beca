@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+
 import { StudentService } from '../../../core/api/student.service';
 import { Student } from '../../../core/api/student.model';
+import { AuthService } from '../../../core/auth/auth.service';
 
 type Vm = {
   students: Student[];
@@ -17,25 +19,33 @@ type Vm = {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './students-list.html',
-  styleUrls: ['./students-list.css']   
+  styleUrls: ['./students-list.css']
 })
 export class StudentsListComponent {
+
   private refresh$ = new BehaviorSubject<void>(undefined);
 
   vm$: Observable<Vm> = this.refresh$.pipe(
     switchMap(() =>
       this.api.list().pipe(
-        map((students) => ({ students, loading: false, error: null } as Vm)),
-        startWith({ students: [], loading: true, error: null } as Vm),
-        catchError((err) => {
+        map(students => ({ students, loading: false, error: null })),
+        startWith({ students: [], loading: true, error: null }),
+        catchError(err => {
           console.error('HTTP error', err);
-          return of({ students: [], loading: false, error: 'Error cargando alumnos' } as Vm);
+          return of({
+            students: [],
+            loading: false,
+            error: 'Error cargando alumnos'
+          });
         })
       )
     )
   );
 
-  constructor(private api: StudentService) {}
+  constructor(
+    private api: StudentService,
+    public auth: AuthService
+  ) {}
 
   reload() {
     this.refresh$.next();

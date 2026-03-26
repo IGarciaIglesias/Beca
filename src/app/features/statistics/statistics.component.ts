@@ -9,7 +9,8 @@ import { Statistics } from '../../core/api/statistics.model';
   selector: 'app-statistics',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './statistics.component.html'
+  templateUrl: './statistics.component.html',
+  styleUrls: ['./statistics.component.css']
 })
 export class StatisticsComponent {
 

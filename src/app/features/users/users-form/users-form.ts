@@ -16,7 +16,8 @@ import { ApiValidationError } from '../../../core/api/api-error.model';
   selector: 'app-users-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './users-form.html'
+  templateUrl: './users-form.html',
+  styleUrls: ['./users-form.css']
 })
 export class UsersFormComponent implements OnInit {
 

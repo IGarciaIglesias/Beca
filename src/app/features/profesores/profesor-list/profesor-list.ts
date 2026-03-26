@@ -18,7 +18,8 @@ type Vm = {
   selector: 'app-profesores-list',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './profesor-list.html'
+  templateUrl: './profesor-list.html',
+  styleUrls: ['./profesor-list.css']
 })
 export class ProfesoresListComponent {
 

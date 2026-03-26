@@ -16,7 +16,8 @@ import { ApiValidationError } from '../../../core/api/api-error.model';
   selector: 'app-profesor-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './profesor-form.html'
+  templateUrl: './profesor-form.html',
+    styleUrls: ['./profesor-form.css']
 })
 export class ProfesorFormComponent implements OnInit {
 

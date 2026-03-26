@@ -7,7 +7,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-welcome',
   standalone: true,
   imports: [CommonModule], 
-  templateUrl: './welcome.component.html'
+  templateUrl: './welcome.component.html',
+  styleUrls: ['./welcome.component.css']
 })
 export class WelcomeComponent {
 

@@ -150,3 +150,23 @@ ng-container > div:last-child {
   font-style: italic;
   color: #6b7280;
 }
+
+/* ===== Botón inicio (Students App) ===== */
+.home-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+.home-button:hover {
+  text-decoration: underline;
+}
+
+.home-button:focus {
+  outline: none;
+}

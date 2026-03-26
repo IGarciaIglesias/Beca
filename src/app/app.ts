@@ -7,9 +7,11 @@ import { AuthService } from './core/auth/auth.service';
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, RouterOutlet],
-  templateUrl: './app.html'
+  templateUrl: './app.html',
+  styleUrls: ['./app.css']
 })
 export class App {
+
   constructor(
     public auth: AuthService,
     private router: Router
@@ -18,5 +20,9 @@ export class App {
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  inicio() {            
+    this.router.navigate(['/welcome']);
   }
 }

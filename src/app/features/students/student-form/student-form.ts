@@ -2,6 +2,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../core/auth/auth.service';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -32,10 +33,17 @@ export class StudentFormComponent implements OnInit {
     private fb: FormBuilder,
     private api: StudentService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
+    // En caso de ser usurario sin permisos, redirigimos a listado
+    if (!this.auth.hasRole('ADMIN', 'GESTOR')) {
+      this.router.navigate(['/students']);
+      return;
+    }
+
     // Inicialización del formulario
     this.form = this.fb.group({
       name: ['', [Validators.required]],

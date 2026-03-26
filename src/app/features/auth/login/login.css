@@ -1,0 +1,88 @@
+/* ===== Contenedor ===== */
+:host {
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 64px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1f2937;
+}
+
+/* ===== Título ===== */
+.login-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* ===== Formulario ===== */
+.login-form {
+  width: 100%;
+  max-width: 360px;
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Grupo de campo ===== */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.form-group input {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+/* Focus */
+.form-group input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
+/* ===== Error ===== */
+.error {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+/* ===== Botón ===== */
+.login-button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Hover */
+.login-button:hover {
+  background: #1d4ed8;
+}
+
+/* Disabled (por si luego lo usas) */
+.login-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}

@@ -17,7 +17,8 @@ type Vm = {
   selector: 'app-profesor-detail',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './profesor-detail.html'
+  templateUrl: './profesor-detail.html',
+    styleUrls: ['./profesor-detail.css']
 })
 export class ProfesorDetailComponent {
 

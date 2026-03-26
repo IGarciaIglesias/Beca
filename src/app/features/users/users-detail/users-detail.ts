@@ -17,7 +17,8 @@ type Vm = {
   selector: 'app-users-detail',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './users-detail.html'
+  templateUrl: './users-detail.html',
+  styleUrls: ['./users-detail.css']
 })
 export class UsersDetailComponent {
 
